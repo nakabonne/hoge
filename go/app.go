@@ -159,11 +159,15 @@ func getIineCount(articleId int) int {
 }
 
 func getTagCount(tagId int) int {
-	row := db.QueryRow(`SELECT COUNT(*) as cnt FROM article_relate_tags WHERE tag_id = ?`, tagId)
-	cnt := new(int)
-	err := row.Scan(cnt)
+	key := strconv.Itoa(tagId)
+	cnt, err := redis.Int(redisClient.Do("GET", key))
 	checkErr(err)
-	return *cnt
+
+	//row := db.QueryRow(`SELECT COUNT(*) as cnt FROM article_relate_tags WHERE tag_id = ?`, tagId)
+	//cnt := new(int)
+	//err := row.Scan(cnt)
+	//checkErr(err)
+	return cnt
 }
 
 func getArticle(articleId int) Article {
@@ -339,6 +343,10 @@ func InsArticle(userId int, title string, tags string, articleBody string, tx *s
 			if err != nil {
 				return "", err
 			}
+			key := strconv.Itoa(articleTagId)
+			_, err := redisClient.Do("INCRBY", articleTagId, 1)
+			checkErr(err)
+
 		}
 	}
 
@@ -388,6 +396,11 @@ func UpdArticle(userId int, articleId int, title string, tags string, articleBod
 				}
 				articleTagIds = append(articleTagIds, int(lastArticleTagId))
 			}
+
+			key := strconv.Itoa(tagId)
+			// 消す
+			_, err := redisClient.Do("DECRBY", key, 1)
+
 		}
 
 		_, err := redisClient.Do("INCRBY", "tags_count", increTagCount)
@@ -409,6 +422,9 @@ func UpdArticle(userId int, articleId int, title string, tags string, articleBod
 			if err != nil {
 				return err
 			}
+			key := strconv.Itoa(articleTagId)
+			_, err := redisClient.Do("INCRBY", articleTagId, 1)
+			checkErr(err)
 		}
 	}
 
@@ -1355,6 +1371,7 @@ func GetInitialize(w http.ResponseWriter, r *http.Request) {
 	storeTagsOnRedis()
 	tagNamesMap = make(map[int][]TagName, 0)
 	setTagMap()
+	setTagCount()
 }
 
 func main() {
@@ -1483,4 +1500,30 @@ func setTagMap() {
 		rows.Close()
 
 	}
+}
+
+func setTagCount() {
+	rows, err := db.Query(`
+			SELECT
+			  id	
+			FROM
+				tags
+		`)
+	if err != sql.ErrNoRows {
+		checkErr(err)
+	}
+	for rows.Next() {
+		var tagId int
+		checkErr(rows.Scan(&tagId))
+		row := db.QueryRow(`SELECT COUNT(*) as cnt FROM article_relate_tags WHERE tag_id = ?`, tagId)
+		cnt := new(int)
+		err := row.Scan(cnt)
+		checkErr(err)
+
+		key := strconv.Itoa(tagId)
+		_, err := redisClient.Do("SET", key, cnt)
+		checkErr(err)
+	}
+	rows.Close()
+
 }
