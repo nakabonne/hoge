@@ -1470,7 +1470,7 @@ func setTagMap() {
 		if err != sql.ErrNoRows {
 			checkErr(err)
 		}
-		tagNamesMap[i+1] = make([]TagName, 0, pageSize)
+		tagNamesMap[i+1] = make([]TagName, 0, 20)
 		for rows.Next() {
 			var tagId int
 			var name string
