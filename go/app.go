@@ -1466,7 +1466,7 @@ func setTagMap() {
 			ORDER BY
 				tagname
 			LIMIT ? OFFSET ?
-		`, 20, i)
+		`, 20, i*20)
 		if err != sql.ErrNoRows {
 			checkErr(err)
 		}
