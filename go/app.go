@@ -35,6 +35,8 @@ var (
 	store       *sessions.CookieStore
 	redisClient redis.Conn
 	loginMu     sync.Mutex
+	// 今のtags数
+	nowTagsCount int
 )
 
 type HeaderInfo struct {
@@ -814,6 +816,13 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 	cnt, err := redis.Int(redisClient.Do("GET", "tags_count"))
 	checkErr(err)
 
+	// かわってなかったら返す
+	if nowTagsCount == cnt {
+		// TODO: nowTagsCountを更新する?
+		render(w, r, http.StatusNotModified)
+		return
+	}
+
 	page, _ := strconv.Atoi(r.FormValue("page"))
 	pageSize := 20
 
@@ -1424,4 +1433,5 @@ func storeTagsOnRedis() {
 	fmt.Println("最初のcountは", cnt)
 	_, err := redisClient.Do("SET", "tags_count", cnt)
 	checkErr(err)
+	nowTagsCount = cnt
 }
