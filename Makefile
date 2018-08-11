@@ -8,3 +8,6 @@ rotate:
 
 restart:
 	sh scripts/restart.sh
+
+alp:
+	sudo alp -r --sum -f $(file)
