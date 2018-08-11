@@ -291,6 +291,9 @@ func InsArticle(userId int, title string, tags string, articleBody string, tx *s
 	}
 
 	if tags != "" {
+		// redisにのせる、tagの数
+		increTagCount := 0
+
 		tagArray := strings.Split(tags, ",")
 		var articleTagIds []int
 		for _, tag := range tagArray {
@@ -311,12 +314,18 @@ func InsArticle(userId int, title string, tags string, articleBody string, tx *s
 				if err != nil {
 					return "", err
 				}
+				increTagCount++
+
 				lastArticleTagId, err := result.LastInsertId()
 				if err != nil {
 					return "", err
 				}
 				articleTagIds = append(articleTagIds, int(lastArticleTagId))
 			}
+		}
+		_, err := redisClient.Do("INCRBY", "tags_count", increTagCount)
+		if err != nil {
+			return err
 		}
 
 		for _, articleTagId := range articleTagIds {
@@ -346,6 +355,8 @@ func UpdArticle(userId int, articleId int, title string, tags string, articleBod
 	}
 
 	if tags != "" {
+		// redisにのせる、tagの数
+		increTagCount := 0
 		tagArray := strings.Split(tags, ",")
 		var articleTagIds []int
 		for _, tag := range tagArray {
@@ -366,12 +377,17 @@ func UpdArticle(userId int, articleId int, title string, tags string, articleBod
 				if err != nil {
 					return err
 				}
+				increTagCount++
 				lastArticleTagId, err := result.LastInsertId()
 				if err != nil {
 					return err
 				}
 				articleTagIds = append(articleTagIds, int(lastArticleTagId))
 			}
+		}
+		_, err := redisClient.Do("INCRBY", "tags_count", increTagCount)
+		if err != nil {
+			return err
 		}
 
 		query := "DELETE FROM article_relate_tags  WHERE article_id = ?"
@@ -789,9 +805,11 @@ func GetIndex(w http.ResponseWriter, r *http.Request) {
 func GetTags(w http.ResponseWriter, r *http.Request) {
 	user := getCurrentUser(w, r)
 
-	row := db.QueryRow("SELECT COUNT(*) as cnt FROM tags")
-	var cnt int
-	checkErr(row.Scan(&cnt))
+	// TODO: redis乗せる
+	//row := db.QueryRow("SELECT COUNT(*) as cnt FROM tags")
+	cnt, err := redis.Int(redisClient.Do("GET", "tags_count"))
+	checkErr(err)
+
 	page, _ := strconv.Atoi(r.FormValue("page"))
 	pageSize := 20
 
@@ -847,6 +865,7 @@ func GetTag(w http.ResponseWriter, r *http.Request) {
 	user := getCurrentUser(w, r)
 	tagId := mux.Vars(r)["tag_id"]
 
+	// TODO: countは決め打ちでいいのでは？
 	row := db.QueryRow("SELECT COUNT(*) as cnt FROM article_relate_tags WHERE tag_id = ?", tagId)
 	var cnt int
 	checkErr(row.Scan(&cnt))
@@ -1388,6 +1407,16 @@ func main() {
 }
 
 func checkErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func storeTagsOnRedis() {
+	row := db.QueryRow("SELECT COUNT(*) as cnt FROM tags")
+	var cnt int
+	checkErr(row.Scan(&cnt))
+	_, err := redisClient.Do("SET", "tags_count", cnt)
 	if err != nil {
 		panic(err)
 	}
