@@ -1371,10 +1371,10 @@ func GetInitialize(w http.ResponseWriter, r *http.Request) {
 		setLogin(i)
 	}
 	fmt.Println("login")
-	storeTagsOnRedis()
+	//storeTagsOnRedis()
 	fmt.Println("hey")
 	tagNamesMap = make(map[int][]TagName, 0)
-	setTagMap()
+	//setTagMap()
 	//setTagCount()
 	fmt.Println("いにちゃ終了")
 }
