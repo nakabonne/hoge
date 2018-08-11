@@ -1379,6 +1379,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to Redis: %s.", err.Error())
 	}
+	storeTagsOnRedis()
 
 	r := mux.NewRouter()
 	r.Use(recoverMiddleware)
