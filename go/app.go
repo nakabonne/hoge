@@ -816,14 +816,6 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 	cnt, err := redis.Int(redisClient.Do("GET", "tags_count"))
 	checkErr(err)
 
-	// かわってなかったら返す
-	if nowTagsCount == cnt {
-		// TODO: nowTagsCountを更新する?
-		w.Header().Set("Cache-Control", "max-age=31557600, public")
-		render(w, r, http.StatusNotModified, "tags.html", nil)
-		return
-	}
-
 	page, _ := strconv.Atoi(r.FormValue("page"))
 	pageSize := 20
 
@@ -858,7 +850,7 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 	headerInfo.Current = "tags"
 	headerInfo.Write = true
 
-	w.Header().Set("Cache-Control", "max-age=31557600, public")
+	//w.Header().Set("Cache-Control", "max-age=31557600, public")
 	render(w, r, http.StatusOK, "tags.html", struct {
 		User       User
 		TagNames   []TagName
