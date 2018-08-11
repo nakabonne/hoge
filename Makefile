@@ -14,3 +14,6 @@ alp:
 
 pprof:
 	go tool pprof /var/www/html/webapp/go/ http://localhost:6060/debug/pprof/profile
+
+seelog:
+	sudo journalctl -u systemd.go.service
