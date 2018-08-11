@@ -726,7 +726,6 @@ func GetLogout(w http.ResponseWriter, r *http.Request) {
 
 func GetPhoto(w http.ResponseWriter, r *http.Request) {
 	memberID, _ := mux.Vars(r)["member_id"]
-	fmt.Println(memberID, "のphotoがきちゃった")
 
 	row := db.QueryRow("SELECT * FROM user_photos WHERE user_id = ?", memberID)
 	var userId int
@@ -870,10 +869,10 @@ func GetTag(w http.ResponseWriter, r *http.Request) {
 	user := getCurrentUser(w, r)
 	tagId := mux.Vars(r)["tag_id"]
 
-	// TODO: countは決め打ちでいいのでは？
-	row := db.QueryRow("SELECT COUNT(*) as cnt FROM article_relate_tags WHERE tag_id = ?", tagId)
-	var cnt int
-	checkErr(row.Scan(&cnt))
+	// redis
+	//row := db.QueryRow("SELECT COUNT(*) as cnt FROM article_relate_tags WHERE tag_id = ?", tagId)
+	cnt, err := redis.Int(redisClient.Do("GET", "tags_count"))
+	checkErr(err)
 	page, _ := strconv.Atoi(r.FormValue("page"))
 	pageSize := 20
 
