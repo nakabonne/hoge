@@ -1493,8 +1493,8 @@ func setTagMap() {
 			var name string
 			var createdAt time.Time
 			checkErr(rows.Scan(&tagId, &name, &createdAt))
-			fmt.Println("pageは", i+1)
-			fmt.Println("tag nameは", name)
+			//fmt.Println("pageは", i+1)
+			//fmt.Println("tag nameは", name)
 			tagNamesMap[i+1] = append(tagNamesMap[i+1], TagName{tagId, name, createdAt})
 		}
 		rows.Close()
