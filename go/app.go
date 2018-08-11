@@ -1419,6 +1419,7 @@ func storeTagsOnRedis() {
 	row := db.QueryRow("SELECT COUNT(*) as cnt FROM tags")
 	var cnt int
 	checkErr(row.Scan(&cnt))
+	fmt.Println("最初のcountは", cnt)
 	_, err := redisClient.Do("SET", "tags_count", cnt)
 	if err != nil {
 		panic(err)
