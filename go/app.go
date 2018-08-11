@@ -325,7 +325,7 @@ func InsArticle(userId int, title string, tags string, articleBody string, tx *s
 		}
 		_, err := redisClient.Do("INCRBY", "tags_count", increTagCount)
 		if err != nil {
-			return err
+			return "", err
 		}
 
 		for _, articleTagId := range articleTagIds {
