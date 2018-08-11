@@ -1476,7 +1476,7 @@ func setTagMap() {
 			var name string
 			var createdAt time.Time
 			checkErr(rows.Scan(&tagId, &name, &createdAt))
-			tagNamesMap[page] = append(tagNamesMap[page], TagName{tagId, name, createdAt})
+			tagNamesMap[i+1] = append(tagNamesMap[i+1], TagName{tagId, name, createdAt})
 		}
 		rows.Close()
 
