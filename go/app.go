@@ -37,6 +37,7 @@ var (
 	loginMu          sync.Mutex
 	tagNamesMap      map[int][]TagName
 	accessedPageList []int
+	countForTags     int
 )
 
 type HeaderInfo struct {
@@ -825,10 +826,12 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 	offset := (page - 1) * pageSize
 	maxPage := int(math.Ceil(float64(cnt) / float64(pageSize)))
 
+	_, exist := tagNamesMap[page]
 	// TODO: 999ではなく変化があったらにする
-	if !isAccessed(page) || cnt != 999 {
-
+	if !exist || cnt != countForTags {
 		fmt.Println("アクセスされてないやつ")
+		fmt.Println("cntは", cnt)
+		fmt.Println("countForTagsは", countForTags)
 		rows, err := db.Query(`
 			SELECT
 				*
@@ -852,6 +855,7 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 		rows.Close()
 
 		accessedPageList = append(accessedPageList, page)
+		countForTags = cnt
 	}
 
 	headerInfo.Current = "tags"
@@ -1443,4 +1447,5 @@ func storeTagsOnRedis() {
 	fmt.Println("最初のcountは", cnt)
 	_, err := redisClient.Do("SET", "tags_count", cnt)
 	checkErr(err)
+	countForTags = cnt
 }
