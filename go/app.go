@@ -832,9 +832,10 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: redis乗せる
 	//row := db.QueryRow("SELECT COUNT(*) as cnt FROM tags")
-	c := redisClient.Do("GET", "tags_count")
-	fmt.Printf("redisの生値は %#v", c)
-	cnt, err := redis.Int(c)
+	value, err := redisClient.Do("GET", "tags_count")
+	checkErr(err)
+	fmt.Printf("redisの生値は %#v", value)
+	cnt, err := redis.Int(value)
 	fmt.Println("count は", cnt)
 	checkErr(err)
 
