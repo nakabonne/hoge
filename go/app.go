@@ -1364,14 +1364,14 @@ func GetInitialize(w http.ResponseWriter, r *http.Request) {
 	db.Exec("DELETE FROM articles WHERE id > 7101")
 	db.Exec("DELETE FROM salts WHERE user_id > 5000")
 	db.Exec("DELETE FROM article_relate_tags WHERE article_id > 7101")
-	redisClient.Do("FLUSHALL")
+	//redisClient.Do("FLUSHALL")
 	for i := 1; i < 500; i++ {
 		setLogin(i)
 	}
 	storeTagsOnRedis()
 	tagNamesMap = make(map[int][]TagName, 0)
 	setTagMap()
-	setTagCount()
+	//setTagCount()
 }
 
 func main() {
@@ -1426,6 +1426,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to Redis: %s.", err.Error())
 	}
+	redisClient.Do("FLUSHALL")
+
+	setTagCount()
 
 	r := mux.NewRouter()
 	r.Use(recoverMiddleware)
