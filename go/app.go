@@ -828,6 +828,7 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 	// TODO: 999ではなく変化があったらにする
 	if !isAccessed(page) || cnt != 999 {
 
+		fmt.Println("アクセスされてないやつ")
 		rows, err := db.Query(`
 			SELECT
 				*
