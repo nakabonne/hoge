@@ -534,6 +534,7 @@ func recoverMiddleware(next http.Handler) http.Handler {
 						msg = s
 					}
 					msg = rcv.(error).Error()
+					fmt.Println("error log: ", msg)
 					http.Error(w, msg, http.StatusInternalServerError)
 				}
 			}
@@ -811,7 +812,6 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 	// redisに乗せる
 	//row := db.QueryRow("SELECT COUNT(*) as cnt FROM tags")
 	cnt, err := redis.Int(redisClient.Do("GET", "tags_count"))
-	fmt.Println("count は", cnt)
 	checkErr(err)
 
 	page, _ := strconv.Atoi(r.FormValue("page"))
