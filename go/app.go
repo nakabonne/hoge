@@ -1345,6 +1345,7 @@ func GetInitialize(w http.ResponseWriter, r *http.Request) {
 		setLogin(i)
 	}
 	storeTagsOnRedis()
+	tagNamesMap = make(map[int][]TagName, 0)
 }
 
 func main() {
