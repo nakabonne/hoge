@@ -844,14 +844,14 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 
 	_, exist := tagNamesMap[page]
 	// TODO: 999ではなく変化があったらにする
-	if !exist || cnt != countForTags {
-		fmt.Println("アクセスされてないやつ")
-		fmt.Println("cntは", cnt)
-		fmt.Println("countForTagsは", countForTags)
-		fmt.Println("pageは", page)
-		fmt.Printf("マップは%#v \n", tagNamesMap)
+	//if !exist || cnt != countForTags {
+	fmt.Println("アクセスされてないやつ")
+	fmt.Println("cntは", cnt)
+	fmt.Println("countForTagsは", countForTags)
+	fmt.Println("pageは", page)
+	fmt.Printf("マップは%#v \n", tagNamesMap)
 
-		rows, err := db.Query(`
+	rows, err := db.Query(`
 			SELECT
 				*
 			FROM
@@ -860,22 +860,22 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 				tagname
 			LIMIT ? OFFSET ?
 		`, pageSize, offset)
-		if err != sql.ErrNoRows {
-			checkErr(err)
-		}
-		tagNamesMap[page] = make([]TagName, 0, pageSize)
-		for rows.Next() {
-			var tagId int
-			var name string
-			var createdAt time.Time
-			checkErr(rows.Scan(&tagId, &name, &createdAt))
-			tagNamesMap[page] = append(tagNamesMap[page], TagName{tagId, name, createdAt})
-		}
-		rows.Close()
-
-		accessedPageList = append(accessedPageList, page)
-		countForTags = cnt
+	if err != sql.ErrNoRows {
+		checkErr(err)
 	}
+	tagNamesMap[page] = make([]TagName, 0, pageSize)
+	for rows.Next() {
+		var tagId int
+		var name string
+		var createdAt time.Time
+		checkErr(rows.Scan(&tagId, &name, &createdAt))
+		tagNamesMap[page] = append(tagNamesMap[page], TagName{tagId, name, createdAt})
+	}
+	rows.Close()
+
+	accessedPageList = append(accessedPageList, page)
+	countForTags = cnt
+	//}
 
 	headerInfo.Current = "tags"
 	headerInfo.Write = true
