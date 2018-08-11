@@ -31,11 +31,12 @@ import (
 )
 
 var (
-	db          *sql.DB
-	store       *sessions.CookieStore
-	redisClient redis.Conn
-	loginMu     sync.Mutex
-	tagNamesMap map[int][]TagName
+	db               *sql.DB
+	store            *sessions.CookieStore
+	redisClient      redis.Conn
+	loginMu          sync.Mutex
+	tagNamesMap      map[int][]TagName
+	accessedPageList []int
 )
 
 type HeaderInfo struct {
@@ -825,7 +826,7 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 	maxPage := int(math.Ceil(float64(cnt) / float64(pageSize)))
 
 	// TODO: 999ではなく変化があったらにする
-	if len(tagNamesMap[page]) == 0 || cnt != 999 {
+	if !isAccessed(page) || cnt != 999 {
 
 		rows, err := db.Query(`
 			SELECT
@@ -848,6 +849,8 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 			tagNamesMap[page] = append(tagNamesMap[page], TagName{tagId, name, createdAt})
 		}
 		rows.Close()
+
+		accessedPageList = append(accessedPageList, page)
 	}
 
 	headerInfo.Current = "tags"
@@ -868,6 +871,15 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 		cnt,
 		headerInfo,
 	})
+}
+
+func isAccessed(page int) bool {
+	for _, v := range accessedPageList {
+		if v == page {
+			return true
+		}
+	}
+	return false
 }
 
 func GetTag(w http.ResponseWriter, r *http.Request) {
