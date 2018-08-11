@@ -1352,6 +1352,7 @@ func GetInitialize(w http.ResponseWriter, r *http.Request) {
 	for i := 1; i < 500; i++ {
 		setLogin(i)
 	}
+	storeTagsOnRedis()
 }
 
 func main() {
@@ -1406,7 +1407,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to Redis: %s.", err.Error())
 	}
-	storeTagsOnRedis()
 
 	r := mux.NewRouter()
 	r.Use(recoverMiddleware)
