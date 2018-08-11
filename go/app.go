@@ -819,7 +819,7 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 	// かわってなかったら返す
 	if nowTagsCount == cnt {
 		// TODO: nowTagsCountを更新する?
-		render(w, r, http.StatusNotModified)
+		render(w, r, http.StatusNotModified, "tags.html", nil)
 		return
 	}
 
