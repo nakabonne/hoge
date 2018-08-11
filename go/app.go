@@ -1457,7 +1457,7 @@ func storeTagsOnRedis() {
 func setTagMap() {
 	var rows *sql.Rows
 	var err error
-	for i := 0; i < 49; i++ {
+	for i := 0; i < 50; i++ {
 		rows, err = db.Query(`
 			SELECT
 				*
