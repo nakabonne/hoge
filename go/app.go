@@ -1357,6 +1357,7 @@ func PostProfileUpdate(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetInitialize(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("いにちゃ開始")
 	db.Exec("DELETE FROM users WHERE id > 5000")
 	db.Exec("DELETE FROM user_photos WHERE user_id > 5000")
 	db.Exec("DELETE FROM tags WHERE id > 999")
@@ -1364,14 +1365,18 @@ func GetInitialize(w http.ResponseWriter, r *http.Request) {
 	db.Exec("DELETE FROM articles WHERE id > 7101")
 	db.Exec("DELETE FROM salts WHERE user_id > 5000")
 	db.Exec("DELETE FROM article_relate_tags WHERE article_id > 7101")
+	fmt.Println("db")
 	//redisClient.Do("FLUSHALL")
 	for i := 1; i < 500; i++ {
 		setLogin(i)
 	}
+	fmt.Println("login")
 	storeTagsOnRedis()
+	fmt.Println("hey")
 	tagNamesMap = make(map[int][]TagName, 0)
 	setTagMap()
 	//setTagCount()
+	fmt.Println("いにちゃ終了")
 }
 
 func main() {
