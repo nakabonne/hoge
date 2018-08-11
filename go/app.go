@@ -832,6 +832,9 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("アクセスされてないやつ")
 		fmt.Println("cntは", cnt)
 		fmt.Println("countForTagsは", countForTags)
+		fmt.Println("pageは", page)
+		fmt.Printf("マップは%#v \n", tagNamesMap)
+
 		rows, err := db.Query(`
 			SELECT
 				*
