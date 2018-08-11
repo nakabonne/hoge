@@ -324,9 +324,9 @@ func InsArticle(userId int, title string, tags string, articleBody string, tx *s
 			}
 		}
 		// TODO: 消す
-		cnt, err = redis.Int(redisclient.do("GET", "tags_count"))
+		cnt, err := redis.Int(redisClient.do("GET", "tags_count"))
 		fmt.Println("InsArticle: 入れる前redis", cnt)
-		checkerr(err)
+		checkErr(err)
 		// ------------------------
 
 		_, err := redisClient.Do("INCRBY", "tags_count", increTagCount)
@@ -335,9 +335,9 @@ func InsArticle(userId int, title string, tags string, articleBody string, tx *s
 		}
 
 		// TODO: 消す
-		cnt, err = redis.Int(redisclient.do("GET", "tags_count"))
+		cnt, err = redis.Int(redisClient.do("GET", "tags_count"))
 		fmt.Println("InsArticle: 入れた後redis", cnt)
-		checkerr(err)
+		checkErr(err)
 		// ------------------------
 
 		for _, articleTagId := range articleTagIds {
@@ -398,9 +398,9 @@ func UpdArticle(userId int, articleId int, title string, tags string, articleBod
 			}
 		}
 		// TODO: 消す
-		cnt, err = redis.Int(redisclient.do("GET", "tags_count"))
+		cnt, err := redis.Int(redisClient.do("GET", "tags_count"))
 		fmt.Println("UpdArticle: 入れる前redis", cnt)
-		checkerr(err)
+		checkErr(err)
 		// ------------------------
 
 		_, err := redisClient.Do("INCRBY", "tags_count", increTagCount)
@@ -409,9 +409,9 @@ func UpdArticle(userId int, articleId int, title string, tags string, articleBod
 		}
 
 		// TODO: 消す
-		cnt, err = redis.Int(redisclient.do("GET", "tags_count"))
+		cnt, err = redis.Int(redisClient.do("GET", "tags_count"))
 		fmt.Println("UpdArticle: 入れた後redis", cnt)
-		checkerr(err)
+		checkErr(err)
 		// ------------------------
 
 		query := "DELETE FROM article_relate_tags  WHERE article_id = ?"
