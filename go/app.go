@@ -35,8 +35,7 @@ var (
 	store       *sessions.CookieStore
 	redisClient redis.Conn
 	loginMu     sync.Mutex
-	// 今のtags数
-	nowTagsCount int
+	tagNamesMap map[int][]TagName
 )
 
 type HeaderInfo struct {
@@ -825,7 +824,10 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 	offset := (page - 1) * pageSize
 	maxPage := int(math.Ceil(float64(cnt) / float64(pageSize)))
 
-	rows, err := db.Query(`
+	// TODO: 999ではなく変化があったらにする
+	if len(tagNamesMap[page]) == 0 || cnt != 999 {
+
+		rows, err := db.Query(`
 			SELECT
 				*
 			FROM
@@ -834,23 +836,23 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 				tagname
 			LIMIT ? OFFSET ?
 		`, pageSize, offset)
-	if err != sql.ErrNoRows {
-		checkErr(err)
+		if err != sql.ErrNoRows {
+			checkErr(err)
+		}
+		tagNamesMap[page] = make([]TagName, 0, pageSize)
+		for rows.Next() {
+			var tagId int
+			var name string
+			var createdAt time.Time
+			checkErr(rows.Scan(&tagId, &name, &createdAt))
+			tagNamesMap[page] = append(tagNamesMap[page], TagName{tagId, name, createdAt})
+		}
+		rows.Close()
 	}
-	tagNames := make([]TagName, 0, pageSize)
-	for rows.Next() {
-		var tagId int
-		var name string
-		var createdAt time.Time
-		checkErr(rows.Scan(&tagId, &name, &createdAt))
-		tagNames = append(tagNames, TagName{tagId, name, createdAt})
-	}
-	rows.Close()
 
 	headerInfo.Current = "tags"
 	headerInfo.Write = true
 
-	//w.Header().Set("Cache-Control", "max-age=31557600, public")
 	render(w, r, http.StatusOK, "tags.html", struct {
 		User       User
 		TagNames   []TagName
@@ -860,7 +862,7 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 		HeaderInfo HeaderInfo
 	}{
 		*user,
-		tagNames,
+		tagNamesMap[page],
 		page,
 		maxPage,
 		cnt,
@@ -1427,5 +1429,4 @@ func storeTagsOnRedis() {
 	fmt.Println("最初のcountは", cnt)
 	_, err := redisClient.Do("SET", "tags_count", cnt)
 	checkErr(err)
-	nowTagsCount = cnt
 }
