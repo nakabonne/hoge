@@ -323,10 +323,22 @@ func InsArticle(userId int, title string, tags string, articleBody string, tx *s
 				articleTagIds = append(articleTagIds, int(lastArticleTagId))
 			}
 		}
+		// TODO: 消す
+		cnt, err = redis.Int(redisclient.do("GET", "tags_count"))
+		fmt.Println("InsArticle: 入れる前redis", cnt)
+		checkerr(err)
+		// ------------------------
+
 		_, err := redisClient.Do("INCRBY", "tags_count", increTagCount)
 		if err != nil {
 			return "", err
 		}
+
+		// TODO: 消す
+		cnt, err = redis.Int(redisclient.do("GET", "tags_count"))
+		fmt.Println("InsArticle: 入れた後redis", cnt)
+		checkerr(err)
+		// ------------------------
 
 		for _, articleTagId := range articleTagIds {
 			query = "INSERT INTO article_relate_tags (article_id, tag_id) VALUES ( ?, ? )"
@@ -385,10 +397,22 @@ func UpdArticle(userId int, articleId int, title string, tags string, articleBod
 				articleTagIds = append(articleTagIds, int(lastArticleTagId))
 			}
 		}
+		// TODO: 消す
+		cnt, err = redis.Int(redisclient.do("GET", "tags_count"))
+		fmt.Println("UpdArticle: 入れる前redis", cnt)
+		checkerr(err)
+		// ------------------------
+
 		_, err := redisClient.Do("INCRBY", "tags_count", increTagCount)
 		if err != nil {
 			return err
 		}
+
+		// TODO: 消す
+		cnt, err = redis.Int(redisclient.do("GET", "tags_count"))
+		fmt.Println("UpdArticle: 入れた後redis", cnt)
+		checkerr(err)
+		// ------------------------
 
 		query := "DELETE FROM article_relate_tags  WHERE article_id = ?"
 		stmt, err := tx.Prepare(query)
@@ -1421,10 +1445,5 @@ func storeTagsOnRedis() {
 	checkErr(row.Scan(&cnt))
 	fmt.Println("最初のcountは", cnt)
 	_, err := redisClient.Do("SET", "tags_count", cnt)
-	checkErr(err)
-
-	// TODO: 消す
-	cnt, err = redis.Int(redisClient.Do("GET", "tags_count"))
-	fmt.Println("最初redis", cnt)
 	checkErr(err)
 }
