@@ -1421,7 +1421,10 @@ func storeTagsOnRedis() {
 	checkErr(row.Scan(&cnt))
 	fmt.Println("最初のcountは", cnt)
 	_, err := redisClient.Do("SET", "tags_count", cnt)
-	if err != nil {
-		panic(err)
-	}
+	checkErr(err)
+
+	// TODO: 消す
+	cnt, err := redis.Int(redisClient.Do("GET", "tags_count"))
+	fmt.Println("最初redis", cnt)
+	checkErr(err)
 }
