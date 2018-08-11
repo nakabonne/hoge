@@ -1503,6 +1503,7 @@ func setTagMap() {
 }
 
 func setTagCount() {
+	fmt.Println("set はじめ")
 	rows, err := db.Query(`
 			SELECT
 			  id	
@@ -1515,10 +1516,12 @@ func setTagCount() {
 	for rows.Next() {
 		var tagId int
 		checkErr(rows.Scan(&tagId))
+		fmt.Println("tagID", tagId)
 		row := db.QueryRow(`SELECT COUNT(*) as cnt FROM article_relate_tags WHERE tag_id = ?`, tagId)
 		cnt := new(int)
 		err := row.Scan(cnt)
 		checkErr(err)
+		fmt.Println("count", cnt)
 
 		key := strconv.Itoa(tagId)
 		_, err = redisClient.Do("SET", key, cnt)
