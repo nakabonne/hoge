@@ -11,3 +11,6 @@ restart:
 
 alp:
 	sudo alp -r --sum -f $(file)
+
+pprof:
+	go tool pprof /var/www/html/webapp/go/ http://localhost:6060/debug/pprof/profile

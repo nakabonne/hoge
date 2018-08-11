@@ -21,6 +21,8 @@ import (
 	"sync"
 	"time"
 
+	_ "net/http/pprof"
+
 	"github.com/go-sql-driver/mysql"
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/context"
@@ -1305,6 +1307,11 @@ func GetInitialize(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// pprof
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+
 	host := os.Getenv("HIDAKKATHON_DB_HOST")
 	if host == "" {
 		host = "localhost"
