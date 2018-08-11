@@ -344,7 +344,7 @@ func InsArticle(userId int, title string, tags string, articleBody string, tx *s
 				return "", err
 			}
 			key := strconv.Itoa(articleTagId)
-			_, err := redisClient.Do("INCRBY", articleTagId, 1)
+			_, err = redisClient.Do("INCRBY", articleTagId, 1)
 			checkErr(err)
 
 		}
@@ -399,7 +399,7 @@ func UpdArticle(userId int, articleId int, title string, tags string, articleBod
 
 			key := strconv.Itoa(tagId)
 			// 消す
-			_, err := redisClient.Do("DECRBY", key, 1)
+			_, err = redisClient.Do("DECRBY", key, 1)
 
 		}
 
@@ -423,7 +423,7 @@ func UpdArticle(userId int, articleId int, title string, tags string, articleBod
 				return err
 			}
 			key := strconv.Itoa(articleTagId)
-			_, err := redisClient.Do("INCRBY", articleTagId, 1)
+			_, err = redisClient.Do("INCRBY", articleTagId, 1)
 			checkErr(err)
 		}
 	}
@@ -1521,7 +1521,7 @@ func setTagCount() {
 		checkErr(err)
 
 		key := strconv.Itoa(tagId)
-		_, err := redisClient.Do("SET", key, cnt)
+		_, err = redisClient.Do("SET", key, cnt)
 		checkErr(err)
 	}
 	rows.Close()
