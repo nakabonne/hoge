@@ -10,3 +10,6 @@ build: deps
 run:
 	./app
 .PHONY: all deps
+
+restart:
+	sh scripts/restart.sh
