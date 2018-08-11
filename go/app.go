@@ -726,6 +726,7 @@ func GetLogout(w http.ResponseWriter, r *http.Request) {
 
 func GetPhoto(w http.ResponseWriter, r *http.Request) {
 	memberID, _ := mux.Vars(r)["member_id"]
+	fmt.Println(memberID, "のphotoがきちゃった")
 
 	row := db.QueryRow("SELECT * FROM user_photos WHERE user_id = ?", memberID)
 	var userId int
