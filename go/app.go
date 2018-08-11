@@ -1354,6 +1354,7 @@ func GetInitialize(w http.ResponseWriter, r *http.Request) {
 	}
 	storeTagsOnRedis()
 	tagNamesMap = make(map[int][]TagName, 0)
+	setTagMap()
 }
 
 func main() {
@@ -1451,4 +1452,33 @@ func storeTagsOnRedis() {
 	_, err := redisClient.Do("SET", "tags_count", cnt)
 	checkErr(err)
 	countForTags = cnt
+}
+
+func setTagMap() {
+	var rows *sql.Rows
+	var err error
+	for i := 0; i < 49; i++ {
+		rows, err = db.Query(`
+			SELECT
+				*
+			FROM
+				tags
+			ORDER BY
+				tagname
+			LIMIT ? OFFSET ?
+		`, 20, i)
+		if err != sql.ErrNoRows {
+			checkErr(err)
+		}
+		tagNamesMap[i+1] = make([]TagName, 0, pageSize)
+		for rows.Next() {
+			var tagId int
+			var name string
+			var createdAt time.Time
+			checkErr(rows.Scan(&tagId, &name, &createdAt))
+			tagNamesMap[page] = append(tagNamesMap[page], TagName{tagId, name, createdAt})
+		}
+		rows.Close()
+
+	}
 }
