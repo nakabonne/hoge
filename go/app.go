@@ -803,6 +803,7 @@ func GetIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTags(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("get tags 開始")
 	user := getCurrentUser(w, r)
 
 	// TODO: redis乗せる
